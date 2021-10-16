@@ -16,5 +16,7 @@ int main()
     txRectangle(300, 20, 320, 200);
 
     return 0;
+    int a;
+    cin>>a;
     }
 
