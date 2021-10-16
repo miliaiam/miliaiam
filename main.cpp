@@ -4,6 +4,7 @@ int main()
     {
     txCreateWindow (1000, 700);
 
+   
     txSetColor (TX_WHITE);
     txSetFillColor (TX_WHITE);
 
