@@ -1,56 +1,74 @@
-#include "pch.h"
+#include <iostream>
+#include <string>
+#include <fstream>
 #include "TXLib.h"
 using namespace std;
-struct menu_button
-{
-	
-	HDC img;
-	COLORREF color= TX_NULL;
-	
 
-
-
-
+struct pic {
+  const char* name;
+  int x, y;
+  bool visible;
+  int width;
+  int height;
 };
-bool Button(int x, int y, int w, int h, const char *str);
+
+int save(string file, pic kartinki[5])
+{
+
+  ofstream f(file);
+  f<<kartinki[0].x<<"\n";
+  f<<kartinki[0].y<<"\n";
+  f<<kartinki[0].name<<"\n";
+  f<<kartinki[0].visible<<"\n";
+  f<<kartinki[0].width<<"\n";
+  f<<kartinki[0].height<<"\n";
+  f.close();
+  }
 
 int main()
-{
-	txCreateWindow(800, 600);
-	
-	while (!GetAsyncKeyState(VK_ESCAPE))
-	{
+{ txCreateWindow(800, 600);
+  pic kartinki[5];
 
-		txBegin();
-	Button(100, 100, 0, 0, "Одиночная игра");
-	Button(100, 170, 0, 0, "Чемпионат");
-	Button(100, 240, 0, 0, "Настройки");
-	Button(100, 310, 0, 0, "О программе");
-	txEnd();
-	}
+  txSetColor(TX_BLACK);
+  txSetFillColor(TX_WHITE);
+  {
+  kartinki[0].x=0;
+  kartinki[0].y=0;
+  kartinki[0].name="pic1.bmp";
+  kartinki[0].visible=true;
+  kartinki[0].width=299;
+  kartinki[0].height=197;
+
+
+  HDC pic = txLoadImage(kartinki[0].name);
+
+  if (kartinki[0].visible) txBitBlt (txDC(), kartinki[0].x, kartinki[0].y, kartinki[0].width, kartinki[0].height, pic, 0, 0);
+
+   }
+
+
+  txSetColor(TX_BLACK);
+  txSetFillColor(TX_WHITE);
+
+  txRectangle(100, 100, 240, 40);
+  txDrawText(100, 100, 240, 40, "Save");
+
+  RECT area = {100, 100, 240, 40};
+
+  while ( 1 )
+  if(txMouseButtons() == 1)
+  {
+    if (txMouseButtons() == 1 &&
+        txMouseX() < 240 &&
+        txMouseX() > 100 &&
+        txMouseY() < 100 &&
+        txMouseY() > 40)
+    {
+    save("file2.txt",kartinki);
+    }
+
+  }
+   cout << save("file2.txt",kartinki);
+
 }
 
-
-bool Button(int x, int y, int w, int h, const char *str)
-{
-
-	
-	menu_button button1;
-	if (button1.color == TX_NULL)  button1.color = TX_RED;
-	if (w== 0)  w = 120;
-	if (h == 0)  h = 30;
-	
-	txSetFillColor(TX_YELLOW);
-
-	txRectangle(x+3, y+8, x + w+8, y + h+8);
-	txSetFillColor(button1.color);
-	if (txMouseX() > x && txMouseY() > y && txMouseX() < x + w && txMouseY() < y + h) txSetFillColor(TX_GREEN);
-	txRectangle(x, y, x + w, y + h);
-	txSetColor(button1.color, 5);
-	txRectangle(x, y, x+w, y+h);
-	txSetColor(TX_WHITE, 5);
-	txTextOut(x+5, y+5, str);
-
-	return 0;
-
-}
