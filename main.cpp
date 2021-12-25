@@ -1,74 +1,155 @@
-#include <iostream>
-#include <string>
-#include <fstream>
 #include "TXLib.h"
 using namespace std;
 
-struct pic {
-  const char* name;
-  int x, y;
-  bool visible;
-  int width;
-  int height;
+struct picter
+{
+	HDC img;
+	int x;
+	int y;
+	int w;
+	int h;
+	const char *name;
+	bool Visible = FALSE;
+
 };
 
-int save(string file, pic kartinki[5])
+picter img_in_town[1000];
+int img_in_town_kol = 0;
+
+
+struct menu_button
 {
 
-  ofstream f(file);
-  f<<kartinki[0].x<<"\n";
-  f<<kartinki[0].y<<"\n";
-  f<<kartinki[0].name<<"\n";
-  f<<kartinki[0].visible<<"\n";
-  f<<kartinki[0].width<<"\n";
-  f<<kartinki[0].height<<"\n";
-  f.close();
-  }
+	HDC img;
+	COLORREF color= TX_NULL;
+
+
+
+
+
+};
+bool Button(int x, int y, int w, int h, const char *str);
+
+void PanelLeft(int nom, const char *PanelName, picter pic[], int x, int y);
+//int MovePicter(int x, int y, HDC img );
+
 
 int main()
-{ txCreateWindow(800, 600);
-  pic kartinki[5];
+{
+	int sprite = 1;
+	txCreateWindow(800, 600);
+	HDC background = txLoadImage("back.bmp");
+	txBitBlt (txDC(), 0, 0, 800, 600, background, 0, 0);
 
-  txSetColor(TX_BLACK);
-  txSetFillColor(TX_WHITE);
-  {
-  kartinki[0].x=0;
-  kartinki[0].y=0;
-  kartinki[0].name="pic1.bmp";
-  kartinki[0].visible=true;
-  kartinki[0].width=299;
-  kartinki[0].height=197;
+	picter pic[4];
 
+	pic[0].img = txLoadImage("pic1.bmp");
+	pic[1].img = txLoadImage("pic2.bmp");
+	pic[2].img = txLoadImage("pic3.bmp");
+	pic[3].img = txLoadImage("pic4.bmp");
 
-  HDC pic = txLoadImage(kartinki[0].name);
+	for (int i = 0;i < 4;i++)
+	{
+		pic[i].w = 200;
+		pic[i].h = 200;
+	};
 
-  if (kartinki[0].visible) txBitBlt (txDC(), kartinki[0].x, kartinki[0].y, kartinki[0].width, kartinki[0].height, pic, 0, 0);
+	while (!GetAsyncKeyState(VK_ESCAPE))
+	{
 
-   }
+		txBegin();
+		if (sprite == 1) {
+			txSetFillColor(TX_BLACK);
+			txClear();
 
+			bool nomMenu = Button(100, 100, 0, 0, "Создать город");
 
-  txSetColor(TX_BLACK);
-  txSetFillColor(TX_WHITE);
+			if (nomMenu) { sprite = 2; }
 
-  txRectangle(100, 100, 240, 40);
-  txDrawText(100, 100, 240, 40, "Save");
+			nomMenu = Button(100, 170, 0, 0, "Загрузить город");
+			if (nomMenu) { sprite = 3; }
+			nomMenu = Button(100, 240, 0, 0, "Настройки");
+			if (nomMenu) { sprite = 4; }
+		}
 
-  RECT area = {100, 100, 240, 40};
+		if (sprite == 2) {
+			txSetFillColor(TX_BLACK);
+			txClear();
 
-  while ( 1 )
-  if(txMouseButtons() == 1)
-  {
-    if (txMouseButtons() == 1 &&
-        txMouseX() < 240 &&
-        txMouseX() > 100 &&
-        txMouseY() < 100 &&
-        txMouseY() > 40)
-    {
-    save("file2.txt",kartinki);
-    }
+			PanelLeft(1, "Дома", pic, 5, 100);
+			bool nomMenu = Button(10, 10, 80, 20, "Заводы");
+			if (nomMenu) { sprite = 5; }
+			nomMenu = Button(100, 10, 80, 20, "Культура");
+			if (nomMenu) { sprite = 6; }
+			nomMenu = Button(190, 10, 80, 20, "Гл.меню");
+			if (nomMenu) { sprite = 1; }
 
-  }
-   cout << save("file2.txt",kartinki);
+		}
+		if (sprite == 1) {}
 
+	txEnd();
+	}
 }
 
+
+bool Button(int x, int y, int w, int h, const char *str)
+{
+
+
+	menu_button button1;
+	if (button1.color == TX_NULL)  button1.color = TX_RED;
+	if (w== 0)  w = 120;
+	if (h == 0)  h = 30;
+
+	txSetFillColor(TX_YELLOW);
+
+	txRectangle(x+3, y+8, x + w+8, y + h+8);
+	txSetFillColor(button1.color);
+	if (txMouseX() > x && txMouseY() > y && txMouseX() < x + w && txMouseY() < y + h) txSetFillColor(TX_GREEN);
+
+	txRectangle(x, y, x + w, y + h);
+	txSetColor(button1.color, 5);
+	txRectangle(x, y, x+w, y+h);
+	txSetColor(TX_WHITE, 5);
+	txTextOut(x+5, y+5, str);
+
+	if (txMouseX() > x && txMouseY() > y && txMouseX() < x + w && txMouseY() < y + h && txMouseButtons() == 1)
+	{
+		txSleep(100);
+		return 1;
+	}
+
+
+	return 0;
+
+}
+void PanelLeft(int nom, const char *PanelName, picter pic[], int x, int y)
+{
+	int img_w = 80, img_h = 80;
+
+	int n=x, imgX = x, imgY = y, imgRast = 30;
+
+	txSetFillColor(TX_RED);
+	txRectangle(x, y, x + img_w+ img_w+ imgRast+5, y + img_h + img_h + imgRast + 100);
+	txSetFillColor(TX_WHITE);
+	txSelectFont("Comic Sans MS", 40);
+	txTextOut(x +50 , y , PanelName);
+	imgX = x + 5, imgY = y + 50;
+   txTransparentBlt(txDC(), imgX, imgY, img_w, img_h, pic[0].img);
+
+   imgX = imgX  +img_w+imgRast;
+   txTransparentBlt(txDC(), imgX, imgY, img_w, img_h, pic[1].img);
+   imgX = n;;
+   imgY = imgY + img_h + imgRast;
+
+   txTransparentBlt(txDC(), imgX, imgY, img_w, img_h, pic[2].img);
+   imgX = imgX + img_w + imgRast;
+   txTransparentBlt(txDC(), imgX, imgY, img_w, img_h, pic[3].img);
+   imgX = n;;
+   imgY = imgY + img_h + imgRast;
+
+
+
+	txSelectFont("Arial", 16);
+
+}
